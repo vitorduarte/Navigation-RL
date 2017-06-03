@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import sys
 
 class State(object):
     """docstring for State"""
@@ -7,9 +8,6 @@ class State(object):
         self.pos = pos
         self.q_val = q_val
         self.reward = reward
-
-    def change_q(self, new_q):
-        self.q_val = new_q
 
 class MapState(object):
     """docstring for Map"""
@@ -30,38 +28,44 @@ class MapState(object):
         self.q_val[pos[0], pos[1]] = new_value
         self.states[pos[0], pos[1]].q_val = new_value
 
-    def get_next_state(self, row, col, wind=True):
+    def get_next_state(self, row, col, wind=True, explore=False):
         max_row = self.states.shape[0]
         max_col = self.states.shape[1]
 
         if (max_row > row) and (max_col > col):
             actual_state = self.states[row, col]
-            q = round(actual_state.q_val)
+
+            if explore ==True:
+                dir_mov = random.randint(0, 3)
+            else:
+                dir_mov = self.get_mov_dir(row, col)
 
             if wind==True:
                 wind_mvmt = generate_wind(row,col)
-
             else:
                 wind_mvmt = 0
 
             #Up
-            if q == 0:
+            if dir_mov == 0:
                 movement_row = wind_mvmt-1
                 movement_col = 0
             #Right
-            elif q == 1:
+            elif dir_mov  == 1:
                 movement_row = wind_mvmt
                 movement_col = 1
 
             #Down
-            elif q == 2:
+            elif dir_mov  == 2:
                 movement_row = wind_mvmt+1
                 movement_col = 0
 
             #Left
-            elif q == 3:
+            elif dir_mov == 3:
                 movement_row = wind_mvmt
                 movement_col = -1
+
+            else:
+                print("ERROR!")
 
             new_row = row + movement_row
             new_col = col + movement_col
@@ -84,6 +88,39 @@ class MapState(object):
             next_state = -1
 
         return next_state
+
+    def get_mov_dir(self, row, col):
+        max_q = 1-sys.maxsize
+        max_row = self.states.shape[0]
+        max_col = self.states.shape[1]
+
+        actual_state = self.states[row, col]
+
+        if row+1 < max_row:
+            side_q = self.states[row+1, col].q_val
+            if side_q > max_q:
+                max_q = side_q
+                mov_dir = 2 #Down
+
+        if row-1 >= 0:
+            side_q = self.states[row-1, col].q_val
+            if side_q > max_q:
+                max_q = side_q
+                mov_dir = 0 #Up
+
+        if col+1 < max_col:
+            side_q = self.states[row, col+1].q_val
+            if side_q > max_q:
+                max_q = side_q
+                mov_dir = 1 #Right
+
+        if col-1 >= 0:
+            side_q = self.states[row, col-1].q_val
+            if side_q > max_q:
+                max_q = side_q
+                mov_dir = 3 #Left
+
+        return mov_dir
 
 def generate_wind(row,col):
     if (2 < col < 6) or col == 8:
