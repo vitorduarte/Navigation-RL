@@ -3,30 +3,56 @@ import random
 import sys
 
 class State(object):
-    """docstring for State"""
-    def __init__(self, reward, pos=(0,0), q_val=0):
+    """Class State
+            @pos - postition off state in 2D
+            @rewards - rewards for 4 possible movements
+                        [0] - Up
+                        [1] - Right
+                        [2] - Down
+                        [3] - Left """
+    def __init__(self, reward=-1, pos=(0,0)):
         self.pos = pos
-        self.q_val = q_val
-        self.reward = reward
+        #self.q_val = q_val
+        self.rewards = np.empty((1,4))
+        self.rewards.fill(reward)
+        self.rewards = self.rewards.reshape(4)
+
+    """@direction - string that describes what position reward change
+            'u' or 0 - Up
+            'r' or 1 - Right
+            'd' or 2 - Down
+            'l' or 3 - Left """
+    def change_reward(self, direction, new_reward):
+        if (direction == 'u') or (direction == 0):
+            self.rewards[0] = new_reward
+        elif (direction == 'r') or (direction == 1):
+            self.rewards[1] = new_reward
+        elif (direction == 'd') or (direction == 2):
+            self.rewards[2] = new_reward
+        elif (direction == 'l') or (direction == 3):
+            self.rewards[3] = new_reward
+        else:
+            print('INVALID DIRECTION')
+
+    def max_reward_idx(self):
+        return self.rewards.argmax()
 
 class MapState(object):
     """docstring for Map"""
-    def __init__(self, heigth, width, reward=-1, min_q=0, max_q=3):
+    def __init__(self, heigth, width, reward=-1):
         self.states = np.empty((heigth, width), dtype=object)
-        self.rewards = np.empty((heigth, width), dtype=np.int16)
-        self.q_val = np.empty((heigth, width), dtype=np.uint8)
+        self.rewards = np.empty((heigth, width), dtype=object)
+
 
         for i in range (0, heigth):
             for j in range (0, width):
-                self.states[i][j] = State(reward,
-                                            (i,j),
-                                            random.randint(min_q, max_q))
-                self.rewards[i][j] = self.states[i][j].reward
-                self.q_val[i][j] = self.states[i][j].q_val
+                self.states[i][j] = State(reward, (i,j))
+                self.rewards[i][j] = self.states[i][j].rewards
 
-    def change_q(self, pos, new_value):
-        self.q_val[pos[0], pos[1]] = new_value
-        self.states[pos[0], pos[1]].q_val = new_value
+
+    def change_reward(self, pos, direction, new_reward):
+        self.states[pos[0], pos[1]].change_reward(direction, new_reward)
+        self.rewards[pos[0], pos[1]] = self.states[pos[0], pos[1]].rewards
 
     def get_next_state(self, row, col, wind=True, explore=False):
         max_row = self.states.shape[0]
@@ -90,35 +116,20 @@ class MapState(object):
         return next_state
 
     def get_mov_dir(self, row, col):
-        max_q = 1-sys.maxsize
         max_row = self.states.shape[0]
         max_col = self.states.shape[1]
 
-        actual_state = self.states[row, col]
+        state = self.states[row, col]
+        mov_dir = state.max_reward_idx()
 
-        if row+1 < max_row:
-            side_q = self.states[row+1, col].q_val
-            if side_q > max_q:
-                max_q = side_q
-                mov_dir = 2 #Down
-
-        if row-1 >= 0:
-            side_q = self.states[row-1, col].q_val
-            if side_q > max_q:
-                max_q = side_q
-                mov_dir = 0 #Up
-
-        if col+1 < max_col:
-            side_q = self.states[row, col+1].q_val
-            if side_q > max_q:
-                max_q = side_q
-                mov_dir = 1 #Right
-
-        if col-1 >= 0:
-            side_q = self.states[row, col-1].q_val
-            if side_q > max_q:
-                max_q = side_q
-                mov_dir = 3 #Left
+        if mov_dir == 2 and (row+1 >= max_row):
+            mov_dir = 0
+        if mov_dir == 0 and (row-1 < 0):
+            mov_dir = 0
+        if mov_dir == 1 and (col+1 >= max_col):
+            mov_dir = 0
+        if mov_dir == 3 and (col-1 < 0):
+            mov_dir = 0
 
         return mov_dir
 
