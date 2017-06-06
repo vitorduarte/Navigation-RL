@@ -38,7 +38,10 @@ class State(object):
         return self.q_val.argmax()
 
 class MapState(object):
-    """docstring for Map"""
+    """Class MapState
+            @height - heigth of state matrix
+            @width - width of state matrix
+            @reward - rewards that initialize this map state """
     def __init__(self, heigth, width, reward=-1):
         self.states = np.empty((heigth, width), dtype=object)
         self.q_val = np.empty((heigth, width), dtype=object)
@@ -54,6 +57,10 @@ class MapState(object):
 
 
     def change_q_val(self, pos, direction, new_reward):
+        """Change q_val of a state in specific position to a specific direction of movement
+            @pos - position of state
+            @direction - direction of vector |0-Up|1-Right|2-Down|3-Left|
+            @new_reward - new value of reward"""
         self.states[pos[0], pos[1]].change_q_val(direction, new_reward)
         self.q_val[pos[0], pos[1]] = self.states[pos[0], pos[1]].q_val
 
@@ -119,7 +126,7 @@ class MapState(object):
 
         return next_state
 
-    def show_map(self):
+    def print_map(self):
         max_row = self.states.shape[0]
         max_col = self.states.shape[1]
         print('\n')
@@ -138,6 +145,21 @@ class MapState(object):
                     text_row += 'LEFT\t'
             print(text_row)
             print('\n')
+
+    def show_map(self, start_position, end_position):
+        positions = []
+        actual_state = self.states[start_position[0]][start_position[1]]
+
+        while True:
+            actual_pos = actual_state.pos
+            next_state = self.get_next_state(actual_pos[0], actual_pos[1])
+            positions.append(actual_pos)
+            if actual_pos == end_position:
+                break
+            actual_state = next_state
+
+        positions.append(actual_pos)
+        return positions
 
     def get_mov_dir(self, row, col):
         max_row = self.states.shape[0]
