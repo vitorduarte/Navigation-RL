@@ -17,12 +17,13 @@ class State(object):
         self.q_val.fill(reward)
         self.q_val = self.q_val.reshape(4)
 
-    """@direction - string that describes what position reward change
+
+    def change_q_val(self, direction, new_reward):
+        """@direction - string that describes what position reward change
             'u' or 0 - Up
             'r' or 1 - Right
             'd' or 2 - Down
             'l' or 3 - Left """
-    def change_q_val(self, direction, new_reward):
         if (direction == 'u') or (direction == 0):
             self.q_val[0] = new_reward
         elif (direction == 'r') or (direction == 1):

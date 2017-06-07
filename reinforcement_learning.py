@@ -3,7 +3,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from gui import *
+import sys
 
 def main():
     return_sarsa = rl_algorithm('SARSA', 400, 1, 0.5, 0.01)
@@ -41,10 +41,13 @@ def main():
     plt.ylabel('Reward')
     plt.show()
 
-    app = QtGui.QApplication(sys.argv)
-    sarsa_grid = Grid('SARSA best path',path_sarsa)
-    q_grid = Grid('Q-Learning best path',path_q)
-    sys.exit(app.exec_())
+
+    if len(sys.argv) > 1 and sys.argv[1]=='-g':
+        import gui
+        app = gui.QtGui.QApplication(sys.argv)
+        sarsa_grid = gui.Grid('SARSA best path',path_sarsa)
+        q_grid = gui.Grid('Q-Learning best path',path_q)
+        sys.exit(app.exec_())
 
 
     #Run the algorithm of Reinforcement Learning

@@ -1,17 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-ZetCode PyQt4 tutorial
-
-This example draws three rectangles in three
-different colours.
-
-author: Jan Bodnar
-website: zetcode.com
-last edited: September 2011
-"""
-
 import sys
 from PyQt4 import QtGui, QtCore
 
@@ -70,9 +56,6 @@ class Grid(QtGui.QWidget):
          size_y = (height/8)
 
          qp.drawRect(start_x, start_y, size_x, size_y)
-
-
-
 
 def main():
 
