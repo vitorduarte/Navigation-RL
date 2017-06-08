@@ -17,9 +17,9 @@ Execute o script reinforcement_learning.py:
 
 - Sem visualização de caminhos
 
-    -python reinforcement_learning.py
+    `python reinforcement_learning.py`
 
 
 - Com a visualização de caminhos
 
-    -python reinforcement_learning.py -g
+    `python reinforcement_learning.py -g`
